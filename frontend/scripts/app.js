@@ -47,7 +47,7 @@ function addNotebook() {
 
 function displayNotebook(name) {
     // display notes for the notebook, format in notes.html
-    window.location.href = "/notes.html";
+    window.location.href = "./notes.html";
     let transaction = db.transaction(["notebooks"], "readonly");
     let objectStore = transaction.objectStore("notebooks");
     let request = objectStore.openCursor();
