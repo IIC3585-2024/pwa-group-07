@@ -1,20 +1,28 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { Pool } = require('pg');
+const firebase = require('firebase/app');
+require('firebase/firestore');
 
-// Create a pool for connecting to the database
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'Anonynote',
-    password: 'postgres',
-    port: 5432,
-});
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Connect to the database
-pool.connect()
-    .then(() => console.log('Connected to the database'))
-    .catch(err => console.error('Failed to connect to the database', err));
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDi_Ku4d07op7w8v4Nh8VdPEQ72g-iREC8",
+  authDomain: "pwa-g7.firebaseapp.com",
+  projectId: "pwa-g7",
+  storageBucket: "pwa-g7.appspot.com",
+  messagingSenderId: "12229005519",
+  appId: "1:12229005519:web:a2e6761d10bca20e3167ba",
+  measurementId: "G-JPDQW9S45S"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Get a Firestore reference
+const db = firebase.firestore();
 
 // Create an Express app
 const app = express();
@@ -30,10 +38,11 @@ app.put('/notes/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { title, content } = req.body;
-        const query = 'UPDATE notes SET name = $1, content = $2 WHERE id = $3 RETURNING *';
-        const values = [title, content, id];
-        const note = await pool.query(query, values);
-        res.json(note.rows[0]);
+
+        const noteRef = db.collection('notes').doc(id);
+        await noteRef.update({ title, content });
+
+        res.json({ id, title, content });
     } catch (err) {
         res.status(500).json({ error: 'Failed to update note' });
     }
@@ -42,15 +51,17 @@ app.put('/notes/:id', async (req, res) => {
 app.delete('/notes/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const query = 'DELETE FROM notes WHERE id = $1';
-        const values = [id];
-        await pool.query(query, values);
+        
+        const noteRef = db.collection('notes').doc(id);
+        await noteRef.delete();
+
         res.json({ message: 'Note deleted' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete note' });
     }
 });
 
+// TO DO: update other methods
 app.post('/notebooks', async (req, res) => {
     try {
         const { name } = req.body;
