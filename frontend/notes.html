@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonynote</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Note Taking App</h1>
+        <div id="notebookSection">
+            <h2>Notebook: <span id="notebookName"></span></h2>
+        </div>
+        <div id="noteSection">
+            <input type="text" id="noteInput" placeholder="Enter your note...">
+            <button onclick="addNote()">Add Note</button>
+            <ul id="noteList"></ul>
+        </div>
+    </div>
+    <script src="scripts/app.js"></script>
+</body>
+</html>
