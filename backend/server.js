@@ -142,11 +142,21 @@ function filterNotes(filters, notes) {
         return filteredNotes;
     }
     if (filters.color) {
-        filteredNotes = filteredNotes.filter(note => note.color === filters.color);
+        // sort alphabetically based on color
+        filteredNotes = filteredNotes.sort((a, b) => a.color.localeCompare(b.color));
+
     }
     if (filters.checked) {
         const checked = filters.checked === 'true';
-        filteredNotes = filteredNotes.filter(note => note.checked === checked);
+        filteredNotes = filteredNotes.sort((a, b) => {
+            if (a.checked === checked && b.checked !== checked) {
+                return -1;
+            }
+            if (a.checked !== checked && b.checked === checked) {
+                return 1;
+            }
+            return 0;
+        });
     }
     if (filters.orderBy) {
         //order from a-z or z-a based on content
