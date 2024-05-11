@@ -1,6 +1,6 @@
 {
-  "name": "Note Taking PWA",
-  "short_name": "Notes",
+  "name": "Notewes",
+  "short_name": "Notewes",
   "description": "A simple note-taking app created with PWA technology.",
   "start_url": "index.html",
   "display": "standalone",

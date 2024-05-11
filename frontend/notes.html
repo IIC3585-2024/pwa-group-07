@@ -4,19 +4,107 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anonynote</title>
+    <title>Notewes</title>
+    <link rel="icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-    <div class="container">
-        <h1>Note Taking App</h1>
+<body class="flexbox">
+    <main class="container text-center">
         <div id="notebookSection">
-            <h2>Notebook: <span id="notebookName"></span></h2>
+            <h1 class="title text-center"><span id="notebookName">Hola soy un notebook default</span></h1>
         </div>
-        <div id="noteSection">
-            <input type="text" id="noteInput" placeholder="Enter your note...">
-            <button onclick="addNote()">Add Note</button>
-            <ul id="noteList"></ul>
+        <div class="buttons-container flexbox text-center">
+            <button class="inline-block green-button" id="homeButton">Menú Principal</button>
+            <button class="inline-block red-button margin-right margin-left" id="deleteAllButton">Borrar Todo</button>
+            <button class="inline-block yellow-button" id="sortButton">Ordenar</button>
+        </div>
+        <br>
+        <div id="noteInputSection" class="flexbox">
+            <input class="flex inline-block" type="text" id="noteInput" style="font-size: 30px;" placeholder="Escribe una nota breve...">
+            <button class="inline-block" onclick="addNote()"><span style="font-size: 30px;">↵</span></button>
+        </div>
+        <br>
+        <div id="notesDisplaySection">
+            <div class="notes-header">
+                <a href="#colorSelector">
+                    <button aria-label="Cambiar todos los colores" title="Cambiar todos los colores" class="blank-button margin-right inline-block">🎨</button>
+                </a>
+                <button aria-label="Marcar todas" title="Marcar todas" class="blank-button margin-right inline-block">☐</button>
+                <img class="title-img float-right" src="./images/notes-logo.jpg">
+            </div>
+            <div class="note">
+                <button class="blank-button margin-right inline-block ">🎨</button>
+                <button class="blank-button margin-right inline-block ">☐</button>
+                <div class="actions inline-block ">
+                    <button class="blank-button margin-right">🗑</button>
+                    <a href="#noteEditor">
+                        <button class="blank-button margin-right">🖊</button>
+                    </a>
+                </div>
+                <p class="inline-block ">Hola soy una nota random default</p>
+            </div>
+            <div class="note green-note">
+                <button class="blank-button margin-right inline-block ">🎨</button>
+                <button class="blank-button margin-right inline-block ">☐</button>
+                <div class="actions inline-block ">
+                    <button class="blank-button margin-right">🗑</button>
+                    <button class="blank-button margin-right">🖊</button>
+                </div>
+                <p class="inline-block ">Hola soy una nota random default</p>
+            </div>
+            <div class="note yellow-note">
+                <button class="blank-button margin-right inline-block ">🎨</button>
+                <button class="blank-button margin-right inline-block ">☐</button>
+                <div class="actions inline-block ">
+                    <button class="blank-button margin-right">🗑</button>
+                    <button class="blank-button margin-right">🖊</button>
+                </div>
+                <p class="inline-block ">Hola soy una nota random default</p>
+            </div>
+            <div class="note red-note">
+                <button class="blank-button margin-right inline-block ">🎨</button>
+                <button class="blank-button margin-right inline-block ">☐</button>
+                <div class="actions inline-block ">
+                    <button class="blank-button margin-right">🗑</button>
+                    <button class="blank-button margin-right">🖊</button>
+                </div>
+                <p class="inline-block ">Hola soy una nota random default</p>
+            </div>
+        </div>
+    </main>
+    <div id="colorSelector" class="overlay">
+        <div id="popup" class="popup">
+            <a class="btn-close trigger" href="#"></a>
+            <h2>Elige un color para tu nota</h2>
+            <div id="swatches" class="colorswatches">
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#c3dfff" style="background: #c3dfff"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#cdffc3" style="background: #cdffc3"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#feb1b1" style="background: #feb1b1"></div>
+                </label>
+                <label class="radio-button-label">
+                    <input type="radio" name="radio-control" />
+                    <div class="swatch" data-color="#fdfeb1" style="background: #fdfeb1"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div id="noteEditor" class="overlay">
+        <div id="popup" class="popup">
+            <a class="btn-close trigger" href="#"></a>
+            <br>
+            <div id="noteEditorSection" class="flexbox">
+                <input class="flex inline-block" type="text" id="noteEdit" style="font-size: 30px;" placeholder="Escribe una nota breve...">
+                <button class="inline-block" onclick=""><span style="font-size: 30px;">↵</span></button>
+            </div>
         </div>
     </div>
     <script src="scripts/app.js"></script>
