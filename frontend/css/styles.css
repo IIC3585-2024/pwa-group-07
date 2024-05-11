@@ -18,22 +18,23 @@ body {
 input[type="text"] {
   width: calc(100% - 80px);
   padding: 8px;
-  margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 3px;
+  font-size: 16px;
 }
 
 button {
   padding: 8px 16px;
-  background-color: #00ff80;
+  background-color: #3385e4;
   color: #fff;
   border: none;
   border-radius: 3px;
   cursor: pointer;
+  font-size: 16px;
 }
 
 button:hover {
-  background-color: #00b374;
+  background-color: #1559a8;
 }
 
 ul {
@@ -48,4 +49,31 @@ li {
 
 li:last-child {
   border-bottom: none;
+}
+
+.title {
+  font-size: 2rem;
+}
+
+.title-img {
+  height: 2rem;
+  border-radius: 5px;
+}
+
+.flexbox {
+  display: flex;
+}
+
+.flex {
+	flex: 1;
+}
+
+.inline-block {
+	box-sizing: border-box;
+  display: inline-block;
+  line-height: normal;
+}
+
+.text-center {
+  text-align: center;
 }

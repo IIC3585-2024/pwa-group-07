@@ -5,17 +5,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#012650">
-    <title>Anonynote</title>
+    <title>Notiwis</title>
     <link rel="icon" href="images/favicon.ico">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
     <main class="container">
-        <h1>Note Taking App</h1>
+        <h1 class="title text-center"><img class="title-img" src="./images/notes-logo.jpg"> Notiwis</h1>
         <div id="notebookSection">
-            <input type="text" id="notebookInput" placeholder="Enter your notebook...">
-            <button onclick="addNotebook()">Add Notebook</button>
+            <div class="flexbox">
+                <input class="flex inline-block" type="text" id="notebookInput" placeholder="Escribe aquí...">
+                <button class="inline-block" onclick="addNotebook()">Añadir</button>
+            </div>
+            <p class="text-center">Escribe el nombre de un Cuaderno de Notas nuevo o ya existente</p>
         </div>
     </main>
     <script src="scripts/app.js"></script>
