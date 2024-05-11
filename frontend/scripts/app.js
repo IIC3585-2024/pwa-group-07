@@ -1,26 +1,11 @@
-let db;
+import { openDB, addNotebookDB, addNoteDB, deleteNoteDB } from "./indexeddb.js";
+
 
 window.onload = function () {
-    let request = window.indexedDB.open("anonynote_db", 1);
-
-    request.onerror = function () {
-        console.error("Database failed to open");
-    };
-
-    request.onsuccess = function () {
-        db = request.result;
-    };
-
-    request.onupgradeneeded = function (e) {
-        let db = e.target.result;
-        let notebooks = db.createObjectStore("notebooks", { keyPath: "id", autoIncrement: true });
-        notebooks.createIndex("name", "name", { unique: false });
-        let notes = db.createObjectStore("notes", { keyPath: "id", autoIncrement: true });
-        notes.createIndex("note", "note", { unique: false });
-    };
-    
+    openDB();
+    const addNotebookButton = document.getElementById("addNotebookButton");
+    addNotebookButton.addEventListener("click", addNotebook);
 };
-
 
 function addNotebook() {
     let name = document.getElementById("notebookInput").value;
@@ -29,69 +14,40 @@ function addNotebook() {
         return;
     }
 
-    let newNotebook = { name: name };
-    let transaction = db.transaction(["notebooks"], "readwrite");
-    let objectStore = transaction.objectStore("notebooks");
-    let request = objectStore.add(newNotebook);
+    addNotebookDB(name);
 
-    request.onsuccess = function () {
-        console.log("New notebook added");
-        displayNotebook(name);
-        document.getElementById("notebookInput").value = "";
-    };
-
-    request.onerror = function () {
-        console.error("Error adding notebook");
-    };
+    console.log("Notebook added");
+    document.getElementById("notebookInput").value = "";
+    displayNotebook(name);
+    
 }
 
 function displayNotebook(name) {
     // display notes for the notebook, format in notes.html
-    window.location.href = "./notes.html";
-    let transaction = db.transaction(["notebooks"], "readonly");
-    let objectStore = transaction.objectStore("notebooks");
-    let request = objectStore.openCursor();
-
-    let noteList = document.getElementById("noteList");
-    noteList.innerHTML = "";
-
-    document.getElementById("notebookName").textContent = name;
-
-    request.onsuccess = function (e) {
-        let cursor = e.target.result;
-
-        if (cursor) {
-            let li = document.createElement("li");
-            li.textContent = cursor.value.note;
-            noteList.appendChild(li);
-
-            cursor.continue();
-        }
-    };
+    
 }
 
 function addNote(name) {
-    let note = document.getElementById("noteInput").value;
-    if (note.trim() === "") {
-        alert("Please enter a note");
-        return;
-    }
+    let content = document.getElementById("noteInput").value;
 
-    let newNote = { note: note };
-    let transaction = db.transaction(["notes"], "readwrite");
-    let objectStore = transaction.objectStore("notes");
-    let request = objectStore.add(newNote);
-
-    request.onsuccess = function () {
-        console.log("New note added");
-        displayNotebook(name);
-        document.getElementById("noteInput").value = "";
+    let note = {
+        content: content,
+        checked: false,
+        color: "white",
     };
 
-    request.onerror = function () {
-        console.error("Error adding note");
-    };
+    addNoteDB(note);
+    document.getElementById("noteInput").value = "";
+    displayNote(note);
+    
 }
+
+function deleteNote(note_id) {
+    
+    deleteNoteDB(note_id);
+    // remove note from display
+}
+
     
 
 if ("serviceWorker" in navigator) {
@@ -101,4 +57,4 @@ if ("serviceWorker" in navigator) {
         .then(res => console.log("service worker registered"))
         .catch(err => console.log("service worker not registered", err))
     })
-  }
+}

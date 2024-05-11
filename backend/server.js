@@ -239,7 +239,7 @@ app.get('/:notebook_id', async (req, res) => {
         }
 
         const notebook = docSnap.data();
-        res.json(notebook);
+        res.json({ id: docSnap.id, ...notebook });
         
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch notebook' });
