@@ -125,6 +125,7 @@ function addNoteComponent(noteName) {
     deleteBtn.textContent = "🗑"
     deleteBtn.className = "blank-button margin-right"
     deleteBtn.id = `delete-${noteName}`
+    deleteBtn.onclick = () => removeNoteComponent(noteName)
 
     // Create edit button
     let editBtn = document.createElement("button")
@@ -143,7 +144,15 @@ function addNoteComponent(noteName) {
     
     noteList.appendChild(li)
 }
-    
+
+function removeNoteComponent(noteName) {
+    let note = document.getElementById(noteName)
+    while (note.firstChild) {
+        note.removeChild(note.firstChild)
+    }
+    note.parentNode.removeChild(note)
+}
+
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function() {
