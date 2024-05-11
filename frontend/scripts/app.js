@@ -76,6 +76,7 @@ function addNote(name) {
         alert("Please enter a note");
         return;
     }
+    console.log(note)
 
     let newNote = { note: note };
     let transaction = db.transaction(["notes"], "readwrite");
@@ -84,13 +85,21 @@ function addNote(name) {
 
     request.onsuccess = function () {
         console.log("New note added");
-        displayNotebook(name);
+        addNoteComponent(newNote.note)
         document.getElementById("noteInput").value = "";
     };
 
     request.onerror = function () {
         console.error("Error adding note");
     };
+}
+
+function addNoteComponent(noteName) {
+    let noteList = document.getElementById("noteList")
+    let li = document.createElement("li")
+    li.textContent = noteName
+    li.id = noteName
+    noteList.appendChild(li)
 }
     
 
