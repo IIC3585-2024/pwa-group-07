@@ -96,9 +96,51 @@ function addNote(name) {
 
 function addNoteComponent(noteName) {
     let noteList = document.getElementById("noteList")
+    
+    // Create note li
     let li = document.createElement("li")
-    li.textContent = noteName
     li.id = noteName
+    li.className = "note"
+
+    // Create styleButton
+    let styleButton = document.createElement("button")
+    styleButton.textContent = "🎨"
+    styleButton.className = "blank-button margin-right inline-block"
+    styleButton.id = `style-${noteName}`
+    li.appendChild(styleButton)
+
+    // Create checkbox
+    let checkbox = document.createElement("button")
+    checkbox.textContent = "☐"
+    checkbox.className = "blank-button margin-right inline-block"
+    checkbox.id = `check-${noteName}`
+    li.appendChild(checkbox)
+
+    // Create actions div
+    let actions = document.createElement("div")
+    actions.className = "actions inline-block"
+
+    // Create delete button
+    let deleteBtn = document.createElement("button")
+    deleteBtn.textContent = "🗑"
+    deleteBtn.className = "blank-button margin-right"
+    deleteBtn.id = `delete-${noteName}`
+
+    // Create edit button
+    let editBtn = document.createElement("button")
+    editBtn.textContent = "🖊"
+    editBtn.className = "blank-button margin-right"
+    editBtn.id = `edit-${noteName}`
+
+    actions.appendChild(deleteBtn)
+    actions.appendChild(editBtn)
+    li.appendChild(actions)
+
+    // Add noteName
+    let nameParagraph = document.createElement("p")
+    nameParagraph.textContent = noteName
+    li.appendChild(nameParagraph)
+    
     noteList.appendChild(li)
 }
     
