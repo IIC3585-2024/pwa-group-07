@@ -14,19 +14,24 @@ function openDB() {
         const db = e.target.result;
         const notebooks = db.createObjectStore("notebooks", { keyPath: "id", autoIncrement: true });
         notebooks.createIndex("id", "id", { unique: true });
+        notebooks.createIndex("id_remote", "id_remote", { unique: false });
         notebooks.createIndex("name", "name", { unique: false });
         const notes = db.createObjectStore("notes", { keyPath: "id", autoIncrement: true });
         notes.createIndex("id", "id", { unique: true });
+        notes.createIndex("id_remote", "id_remote", { unique: false });
         notes.createIndex("notebook_id", "notebook_id", { unique: false });
     };
 };
 
-function addNotebookDB(name) {
-    const newNotebook = { name: name };
+function addNotebookDB(notebook) {
+
+    if (notebook.online_id === undefined) {
+        notebook.id_remote = "offline"
+    }
     const transaction = db
         .transaction(["notebooks"], "readwrite")
         .objectStore("notebooks")
-        .add(newNotebook);
+        .add(notebook);
 
     transaction.onsuccess = function () {
         console.log("Notebook added");
@@ -38,15 +43,7 @@ function addNotebookDB(name) {
 
 };
 
-function addNoteDB(notebook_id, note) {
-    // note is an object with content, checked, and color properties
-    const newNote = { 
-        notebook_id: notebook_id,
-        id: note.id,
-        content: note.content,
-        checked: note.checked,
-        color: note.color,
-    };
+function addNoteDB(note) {
 
     const transaction = db
         .transaction(["notes"], "readwrite")
@@ -126,4 +123,37 @@ function deleteNotebookDB(notebook_id) {
     }
 }
 
-export { openDB, addNotebookDB, addNoteDB, getNotebookNotesDB, updateNoteDB, deleteNoteDB, deleteNotebookDB };
+function getNotebookDB(notebook_id) {
+    const transaction = db
+        .transaction(["notebooks"], "readonly")
+        .objectStore("notebooks")
+        .index("id")
+        .get(notebook_id);
+
+    transaction.onsuccess = function () {
+        console.log(transaction.result);
+    }
+
+    transaction.onerror = function () {
+        console.error("Failed to get notebook");
+    }
+}
+
+function getNoteDB(note_id) {
+    const transaction = db
+        .transaction(["notes"], "readonly")
+        .objectStore("notes")
+        .index("id")
+        .get(note_id);
+
+    transaction.onsuccess = function () {
+        console.log(transaction.result);
+    }
+
+    transaction.onerror = function () {
+        console.error("Failed to get note");
+    }
+}
+
+
+export { openDB, addNotebookDB, addNoteDB, getNotebookNotesDB, updateNoteDB, deleteNoteDB, deleteNotebookDB, getNotebookDB, getNoteDB }

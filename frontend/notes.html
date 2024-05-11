@@ -15,58 +15,21 @@
         </div>
         <div class="buttons-container flexbox text-center">
             <button class="inline-block green-button" id="homeButton">Menú Principal</button>
-            <button class="inline-block red-button margin-right margin-left" id="deleteAllButton">Borrar Todo</button>
             <button class="inline-block yellow-button" id="sortButton">Ordenar</button>
         </div>
         <br>
         <div id="noteInputSection" class="flexbox">
             <input class="flex inline-block" type="text" id="noteInput" style="font-size: 30px;" placeholder="Escribe una nota breve...">
-            <button class="inline-block" onclick="addNote()"><span style="font-size: 30px;">↵</span></button>
+            <button class="inline-block" id="addNoteButton"><span style="font-size: 30px;">↵</span></button>
         </div>
         <br>
         <div id="notesDisplaySection">
-            <div class="notes-header">
-                <a href="#colorSelector">
-                    <button aria-label="Cambiar todos los colores" title="Cambiar todos los colores" class="blank-button margin-right inline-block">🎨</button>
-                </a>
-                <button aria-label="Marcar todas" title="Marcar todas" class="blank-button margin-right inline-block">☐</button>
-                <img class="title-img float-right" src="./images/notes-logo.jpg">
-            </div>
-            <div class="note">
-                <button class="blank-button margin-right inline-block ">🎨</button>
-                <button class="blank-button margin-right inline-block ">☐</button>
-                <div class="actions inline-block ">
-                    <button class="blank-button margin-right">🗑</button>
-                    <a href="#noteEditor">
-                        <button class="blank-button margin-right">🖊</button>
-                    </a>
-                </div>
-                <p class="inline-block ">Hola soy una nota random default</p>
-            </div>
             <div class="note green-note">
-                <button class="blank-button margin-right inline-block ">🎨</button>
-                <button class="blank-button margin-right inline-block ">☐</button>
+                <button class="blank-button margin-right inline-block color-button">🎨</button>
+                <button class="blank-button margin-right inline-block check-button">☐</button>
                 <div class="actions inline-block ">
-                    <button class="blank-button margin-right">🗑</button>
-                    <button class="blank-button margin-right">🖊</button>
-                </div>
-                <p class="inline-block ">Hola soy una nota random default</p>
-            </div>
-            <div class="note yellow-note">
-                <button class="blank-button margin-right inline-block ">🎨</button>
-                <button class="blank-button margin-right inline-block ">☐</button>
-                <div class="actions inline-block ">
-                    <button class="blank-button margin-right">🗑</button>
-                    <button class="blank-button margin-right">🖊</button>
-                </div>
-                <p class="inline-block ">Hola soy una nota random default</p>
-            </div>
-            <div class="note red-note">
-                <button class="blank-button margin-right inline-block ">🎨</button>
-                <button class="blank-button margin-right inline-block ">☐</button>
-                <div class="actions inline-block ">
-                    <button class="blank-button margin-right">🗑</button>
-                    <button class="blank-button margin-right">🖊</button>
+                    <button class="blank-button margin-right delete-button">🗑</button>
+                    <button class="blank-button margin-right update-button">🖊</button>
                 </div>
                 <p class="inline-block ">Hola soy una nota random default</p>
             </div>
