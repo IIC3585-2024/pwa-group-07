@@ -39,6 +39,19 @@ function getDB() {
     return db;
 }
 
+function clearDB() {
+    const db = getDB();
+
+    const transaction = db
+        .transaction(["notebooks", "notes"], "readwrite");
+
+    const notebooks = transaction.objectStore("notebooks");
+    const notes = transaction.objectStore("notes");
+
+    notebooks.clear();
+    notes.clear();
+}
+
 function addNotebookDB(notebook) {
     return new Promise((resolve, reject) => {
 
@@ -262,5 +275,24 @@ function getNoteDB(note_id) {
     });
 }
 
+function getNotebooksDB() {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
 
-export { openDB, addNotebookDB, addNoteDB, getNotebookNotesDB, updateNoteDB, deleteNoteDB, deleteNotebookDB, getNotebookDB, getNoteDB};
+        const transaction = db
+            .transaction(["notebooks"], "readonly")
+            .objectStore("notebooks")
+            .getAll();
+
+        transaction.onsuccess = function () {
+            resolve(transaction.result);
+        }
+
+        transaction.onerror = function () {
+            console.error("Failed to get notebooks");
+        }
+    });
+}
+
+
+export { openDB, addNotebookDB, addNoteDB, getNotebookNotesDB, updateNoteDB, deleteNoteDB, deleteNotebookDB, getNotebookDB, getNoteDB, getNotebooksDB, clearDB };
