@@ -159,6 +159,7 @@ async function addNote(notebook_id) {
         displayNote({ content: content });
         return;
     }
+    console.log(note)
 
     const newNote = {
         content: content,
@@ -173,7 +174,7 @@ async function addNote(notebook_id) {
 
     addNoteDB(note);
     document.getElementById("noteInput").value = "";
-    displayNote(note);   
+    addNoteComponent(newNote.content);
 }
 
 async function updateNote(note){
@@ -275,7 +276,84 @@ async function deleteNote(note) {
 
     note.deleted = true;
 }
+
+function addNoteComponent(noteName) {
+    let noteList = document.getElementById("noteList")
     
+    // Create note li
+    let li = document.createElement("li")
+    li.id = noteName
+    li.className = "note"
+
+    // Create styleButton
+    let styleButton = document.createElement("button")
+    styleButton.textContent = "🎨"
+    styleButton.className = "blank-button margin-right inline-block"
+    styleButton.id = `style-${noteName}`
+    li.appendChild(styleButton)
+
+    // Create checkbox
+    let checkbox = document.createElement("button")
+    checkbox.textContent = "☐"
+    checkbox.className = "blank-button margin-right inline-block"
+    checkbox.id = `check-${noteName}`
+    li.appendChild(checkbox)
+
+    // Create actions div
+    let actions = document.createElement("div")
+    actions.className = "actions inline-block"
+    actions.id = `actions-${noteName}`
+
+    // Create delete button
+    let deleteBtn = document.createElement("button")
+    deleteBtn.textContent = "🗑"
+    deleteBtn.className = "blank-button margin-right"
+    deleteBtn.id = `delete-${noteName}`
+    deleteBtn.onclick = () => removeNoteComponent(noteName)
+
+    // Create edit button
+    let editBtn = document.createElement("button")
+    editBtn.textContent = "🖊"
+    editBtn.className = "blank-button margin-right"
+    editBtn.id = `edit-${noteName}`
+
+    actions.appendChild(deleteBtn)
+    actions.appendChild(editBtn)
+    li.appendChild(actions)
+
+    // Add noteName
+    let nameParagraph = document.createElement("p")
+    nameParagraph.textContent = noteName
+    nameParagraph.id = `p-${noteName}`
+    li.appendChild(nameParagraph)
+    
+    noteList.appendChild(li)
+}
+
+function removeNoteComponent(noteName) {
+    let note = document.getElementById(noteName)
+    while (note.firstChild) {
+        note.removeChild(note.firstChild)
+    }
+    note.parentNode.removeChild(note)
+}
+
+function editNote(noteName, newName) {
+    let note = document.getElementById(noteName)
+    for (let child of note.children) {
+        child.id = child.id.split("-")[0] + `-${newName}`
+    }
+    let noteParagraph = document.getElementById(`p-${newName}`)
+    noteParagraph.textContent = newName
+}
+
+function removeAllNoteComponents() {
+    let noteList = document.getElementById("noteList")
+    while (noteList.firstChild) {
+        removeNoteComponent(noteList.firstChild.id)
+    }
+}
+
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function() {
