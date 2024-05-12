@@ -84,20 +84,22 @@ function addNotebookDB(notebook) {
 
 function addNoteDB(note) {
 
-    const db = getDB();
+    return new Promise((resolve, reject) => {
+        const db = getDB();
 
-    const transaction = db
-        .transaction(["notes"], "readwrite")
-        .objectStore("notes")
-        .add(note);
+        const transaction = db
+            .transaction(["notes"], "readwrite")
+            .objectStore("notes")
+            .add(note);
 
-    transaction.onsuccess = function () {
-        console.log("Note added");
-    }
+        transaction.onsuccess = function () {
+            return resolve(transaction.result);
+        }
 
-    transaction.onerror = function () {
-        console.error("Failed to add note");
-    }
+        transaction.onerror = function () {
+            console.error("Failed to add note");
+        }
+    });
 }
 
 async function getNotebookNotesDB(notebook_id) {
@@ -149,7 +151,7 @@ function updateNoteDB(note) {
             
                 transaction.onsuccess = function () {
                     console.log("Note updated");
-                    resolve();
+                    resolve(transaction.result);
                 }
             
                 transaction.onerror = function () {
