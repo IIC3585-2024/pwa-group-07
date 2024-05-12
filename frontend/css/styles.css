@@ -96,12 +96,18 @@ li:last-child {
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  vertical-align: text-bottom;
 }
 
 .title-img {
-  height: 2rem;
+  height: 2.5rem;
+  box-sizing: border-box;
   border-radius: 5px;
+  vertical-align: top;
+}
+
+.padding-5 {
   padding: 5px;
 }
 
@@ -185,8 +191,7 @@ li:last-child {
 	left: 0;
 	right: 0;
 	background: rgba(var(--popup-overlay-color),var(--alpha));
-	visibility: hidden;
-	opacity: 0;
+  display: none;
 }
 
 .overlay:target {
@@ -201,7 +206,7 @@ li:last-child {
   gap: 0 10px;
 	text-align: center;
 	margin: 4rem auto;
-	padding: 2rem 1rem;
+	padding: 3rem 1rem;
 	background: rgb(var(--popup-background-color));
 	border-radius: 5px;
 	width: 90%;
