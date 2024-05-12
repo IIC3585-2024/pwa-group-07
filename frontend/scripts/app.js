@@ -119,6 +119,7 @@ function addNoteComponent(noteName) {
     // Create actions div
     let actions = document.createElement("div")
     actions.className = "actions inline-block"
+    actions.id = `actions-${noteName}`
 
     // Create delete button
     let deleteBtn = document.createElement("button")
@@ -140,6 +141,7 @@ function addNoteComponent(noteName) {
     // Add noteName
     let nameParagraph = document.createElement("p")
     nameParagraph.textContent = noteName
+    nameParagraph.id = `p-${noteName}`
     li.appendChild(nameParagraph)
     
     noteList.appendChild(li)
@@ -151,6 +153,22 @@ function removeNoteComponent(noteName) {
         note.removeChild(note.firstChild)
     }
     note.parentNode.removeChild(note)
+}
+
+function editNote(noteName, newName) {
+    let note = document.getElementById(noteName)
+    for (let child of note.children) {
+        child.id = child.id.split("-")[0] + `-${newName}`
+    }
+    let noteParagraph = document.getElementById(`p-${newName}`)
+    noteParagraph.textContent = newName
+}
+
+function removeAllNoteComponents() {
+    let noteList = document.getElementById("noteList")
+    while (noteList.firstChild) {
+        removeNoteComponent(noteList.firstChild.id)
+    }
 }
 
 
