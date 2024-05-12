@@ -22,27 +22,6 @@
         </div>
     </main>
     <script type="module" src="scripts/app.js"></script>
-    <!-- <script>
-        function requestPermission() {
-            console.log('Requesting permission...');
-            Notification.requestPermission().then((permission) => {
-                if (permission === 'granted') {
-                    console.log('Notification permission granted.');
-                } else {
-                    console.log('Unable to get permission to notify.');
-                }
-            });
-        }
-        requestPermission();
-        if ('serviceWorker' in navigator) {
-            // window.addEventListener('load', () => {
-                navigator.serviceWorker.register('firebase-messaging-sw.js')
-                    .then(reg => {
-                        console.log('Firebase service worker registered.', reg);
-                    });
-            // });
-        }
-    </script> -->
     <script type="module" src="scripts/firebaseConfig.js"></script>
 </body>
 </html>
