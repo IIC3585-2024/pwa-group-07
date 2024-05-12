@@ -53,8 +53,7 @@ function addNotebookDB(notebook) {
 
         transaction.onsuccess = function () {
             if (transaction.result) {
-                console.log("Notebook already exists");
-                return;
+                resolve(transaction.result.id);
             } else {
                 
                 if (notebook.online_id === undefined) {
@@ -222,22 +221,23 @@ function deleteNotebookDB(notebook_id) {
 }
 
 function getNotebookDB(notebook_id) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
 
-    const db = getDB();
+        const transaction = db
+            .transaction(["notebooks"], "readonly")
+            .objectStore("notebooks")
+            .index("id")
+            .get(notebook_id);
 
-    const transaction = db
-        .transaction(["notebooks"], "readonly")
-        .objectStore("notebooks")
-        .index("id")
-        .get(notebook_id);
+        transaction.onsuccess = function () {
+            resolve(transaction.result);
+        }
 
-    transaction.onsuccess = function () {
-        console.log(transaction.result);
-    }
-
-    transaction.onerror = function () {
-        console.error("Failed to get notebook");
-    }
+        transaction.onerror = function () {
+            console.error("Failed to get notebook");
+        }
+    });
 }
 
 function getNoteDB(note_id) {
@@ -245,14 +245,12 @@ function getNoteDB(note_id) {
     return new Promise((resolve, reject) => {
         const db = getDB();
 
-        console.log(note_id);
         const transaction = db
             .transaction(["notes"], "readonly")
             .objectStore("notes")
             .get(note_id);
 
         transaction.onsuccess = function () {
-            console.log(transaction.result)
             resolve(transaction.result);
         }
 
