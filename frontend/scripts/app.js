@@ -278,26 +278,26 @@ async function deleteNote(note) {
 }
 
 function addNoteComponent(noteName) {
-    let noteList = document.getElementById("noteList")
+    let noteList = document.getElementById("notesDisplaySection")
     
-    // Create note li
-    let li = document.createElement("li")
-    li.id = noteName
-    li.className = "note"
+    // Create note div
+    let noteDiv = document.createElement("div")
+    noteDiv.id = noteName
+    noteDiv.className = "note"
 
     // Create styleButton
     let styleButton = document.createElement("button")
     styleButton.textContent = "🎨"
     styleButton.className = "blank-button margin-right inline-block"
     styleButton.id = `style-${noteName}`
-    li.appendChild(styleButton)
+    noteDiv.appendChild(styleButton)
 
     // Create checkbox
     let checkbox = document.createElement("button")
     checkbox.textContent = "☐"
     checkbox.className = "blank-button margin-right inline-block"
     checkbox.id = `check-${noteName}`
-    li.appendChild(checkbox)
+    noteDiv.appendChild(checkbox)
 
     // Create actions div
     let actions = document.createElement("div")
@@ -319,15 +319,16 @@ function addNoteComponent(noteName) {
 
     actions.appendChild(deleteBtn)
     actions.appendChild(editBtn)
-    li.appendChild(actions)
+    noteDiv.appendChild(actions)
 
     // Add noteName
     let nameParagraph = document.createElement("p")
     nameParagraph.textContent = noteName
     nameParagraph.id = `p-${noteName}`
-    li.appendChild(nameParagraph)
+    nameParagraph.className = "inline-block"
+    noteDiv.appendChild(nameParagraph)
     
-    noteList.appendChild(li)
+    noteList.appendChild(noteDiv)
 }
 
 function removeNoteComponent(noteName) {
@@ -348,7 +349,7 @@ function editNote(noteName, newName) {
 }
 
 function removeAllNoteComponents() {
-    let noteList = document.getElementById("noteList")
+    let noteList = document.getElementById("notesDisplaySection")
     while (noteList.firstChild) {
         removeNoteComponent(noteList.firstChild.id)
     }
