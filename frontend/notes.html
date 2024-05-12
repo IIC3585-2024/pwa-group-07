@@ -11,7 +11,7 @@
 <body class="flexbox">
     <main class="container text-center">
         <div id="notebookSection">
-            <h1 class="title text-center"><span id="notebookName">Hola soy un notebook default</span></h1>
+            <h1 class="title text-center" id="notebookName"><span><script>document.write(localStorage.getItem('notebookName'))</script></span></h1>
         </div>
         <div class="buttons-container flexbox text-center">
             <button class="inline-block green-button" id="homeButton">Menú Principal</button>
@@ -21,7 +21,7 @@
         <br>
         <div id="noteInputSection" class="flexbox">
             <input class="flex inline-block" type="text" id="noteInput" style="font-size: 30px;" placeholder="Escribe una nota breve...">
-            <button class="inline-block" id="addNoteButton"><span style="font-size: 30px;">↵</span></button>
+            <button class="inline-block" id="addNoteButton">↵</button>
         </div>
         <br>
         <div class="notes-header">
@@ -64,7 +64,7 @@
             <br>
             <div id="noteEditorSection" class="flexbox">
                 <input class="flex inline-block" type="text" id="noteEdit" style="font-size: 30px;" placeholder="Escribe una nota breve...">
-                <button class="inline-block" onclick=""><span style="font-size: 30px;">↵</span></button>
+                <button class="inline-block" onclick="">↵</button>
             </div>
         </div>
     </div>
