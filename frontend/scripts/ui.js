@@ -26,7 +26,7 @@ function displayNotebook(notebook) {
     localStorage.setItem("notebookId",notebook.id)
 
     // move to notes page and change notebook name
-    window.location.href = "/frontend/notes.html";
+    window.location.href = "./notes.html";
 }
 
 async function displayNotes(notes) {

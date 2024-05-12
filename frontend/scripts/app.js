@@ -78,14 +78,14 @@ window.onload = async function () {
     });
 
     if (document.readyState === "complete" || document.readyState === "interactive") {
-        if (window.location.pathname === "/frontend/notes.html") {
+        if (window.location.pathname === "./notes.html") {
             const notebookId = localStorage.getItem("notebookId");
             const notes = await getNotes(notebookId);
             displayNotes(notes);
         }
     } else {
         document.addEventListener("load", async function () {
-            if (window.location.pathname === "/frontend/notes.html") {
+            if (window.location.pathname === "./notes.html") {
                 const notebookId = localStorage.getItem("notebookId");
                 const notes = await getNotes(notebookId);
                 displayNotes(notes);
