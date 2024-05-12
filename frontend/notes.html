@@ -11,48 +11,46 @@
 <body class="flexbox">
     <main class="container text-center">
         <div id="notebookSection">
-            <h1 class="title text-center"><span id="notebookName">Hola soy un notebook default</span></h1>
+            <h1 class="title text-center" id="notebookName"><span><script>document.write(localStorage.getItem('notebookName'))</script></span></h1>
         </div>
         <div class="buttons-container flexbox text-center">
             <button class="inline-block green-button" id="homeButton">Menú Principal</button>
-            <button class="inline-block red-button margin-right margin-left" id="deleteAllButton" onclick="removeAllNoteComponents()">Borrar Todo</button>
+            <button class="inline-block red-button margin-right margin-left" id="deleteAllButton">Borrar Todo</button>
             <button class="inline-block yellow-button" id="sortButton">Ordenar</button>
         </div>
         <br>
         <div id="noteInputSection" class="flexbox">
             <input class="flex inline-block" type="text" id="noteInput" style="font-size: 30px;" placeholder="Escribe una nota breve...">
-            <button class="inline-block" onclick="addNote()"><span style="font-size: 30px;">↵</span></button>
+            <button class="inline-block" id="addNoteButton" style="font-size: 30px;">↵</button>
         </div>
         <br>
         <div class="notes-header">
-            <a href="#colorSelector">
-                <button aria-label="Cambiar todos los colores" title="Cambiar todos los colores" class="blank-button margin-right inline-block">🎨</button>
-            </a>
-            <button aria-label="Marcar todas" title="Marcar todas" class="blank-button margin-right inline-block">☐</button>
-            <img class="title-img float-right" src="./images/notes-logo.jpg">
+            <button aria-label="Cambiar todos los colores" id="changeAllColors" title="Cambiar todos los colores" class="blank-button margin-right inline-block">🎨</button>
+            <button aria-label="Marcar todas" id="checkAll" title="Marcar todas" class="blank-button margin-right inline-block">☐</button>
+            <img class="title-img float-right padding-5" src="./images/notes-logo.jpg">
         </div>
         <div id="notesDisplaySection"></div>
     </main>
     <div id="colorSelector" class="overlay">
         <div id="popup" class="popup">
-            <a class="btn-close trigger" href="#"></a>
+            <a class="btn-close trigger" id="colorCloseButton"></a>
             <h2>Elige un color para tu nota</h2>
             <div id="swatches" class="colorswatches">
                 <label class="radio-button-label">
                     <input type="radio" name="radio-control" />
-                    <div class="swatch" data-color="#c3dfff" style="background: #c3dfff"></div>
+                    <div class="swatch" data-color="#c3dfff" id="blue" style="background: #c3dfff"></div>
                 </label>
                 <label class="radio-button-label">
                     <input type="radio" name="radio-control" />
-                    <div class="swatch" data-color="#cdffc3" style="background: #cdffc3"></div>
+                    <div class="swatch" data-color="#cdffc3" id="green" style="background: #cdffc3"></div>
                 </label>
                 <label class="radio-button-label">
                     <input type="radio" name="radio-control" />
-                    <div class="swatch" data-color="#feb1b1" style="background: #feb1b1"></div>
+                    <div class="swatch" data-color="#feb1b1" id="red" style="background: #feb1b1"></div>
                 </label>
                 <label class="radio-button-label">
                     <input type="radio" name="radio-control" />
-                    <div class="swatch" data-color="#fdfeb1" style="background: #fdfeb1"></div>
+                    <div class="swatch" data-color="#fdfeb1" id="yellow" style="background: #fdfeb1"></div>
                 </label>
             </div>
         </div>
@@ -60,14 +58,14 @@
 
     <div id="noteEditor" class="overlay">
         <div id="popup" class="popup">
-            <a class="btn-close trigger" href="#"></a>
+            <a class="btn-close trigger" id="editorCloseButton"></a>
             <br>
             <div id="noteEditorSection" class="flexbox">
-                <input class="flex inline-block" type="text" id="noteEdit" style="font-size: 30px;" placeholder="Escribe una nota breve...">
-                <button class="inline-block" onclick=""><span style="font-size: 30px;">↵</span></button>
+                <input class="flex inline-block" type="text" id="editorInput" style="font-size: 30px;" placeholder="Escribe una nota breve...">
+                <button class="inline-block" id="editorSaveButton" style="font-size: 30px;">↵</button>
             </div>
         </div>
     </div>
-    <script src="scripts/app.js"></script>
+    <script type="module" src="scripts/app.js"></script>
 </body>
 </html>
