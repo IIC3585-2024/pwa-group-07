@@ -20,7 +20,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
-console.log(messaging)
 
 function requestPermission() {
   console.log('Requesting permission...');
@@ -51,3 +50,11 @@ getToken(messaging, {
   .catch((err) => {
       console.log("An error occurred while retrieving token. ", err);
   });
+
+onMessage(messaging, (payload) => {
+    console.log('Message received. ', payload);
+    const notificationBody = payload.notification.body;
+
+    // TODO: replace this with a toast in the UI
+    alert(notificationBody)
+});

@@ -16,3 +16,16 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  console.log('[firebase-messaging-sw.js] Received background message ', payload);
+  // Customize notification here
+  const notificationTitle = payload.notification.title || payload.data.title;
+  const notificationOptions = {
+    body: payload.notification.body || payload.data.body,
+    icon: '/images/notes-logo.jpg',
+  };
+
+  self.registration.showNotification(notificationTitle,
+    notificationOptions);
+});
