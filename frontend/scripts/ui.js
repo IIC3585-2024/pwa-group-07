@@ -157,4 +157,21 @@ function changeNoteColor(noteId, color) {
     note.className = `note ${color}-note`;
 }
 
-export { displayNotebook, displayNotes, addNoteComponent, removeNoteComponent, editNoteComponent, checkNoteComponent, changeNoteColor, removeAllNoteComponents, showNoteEditor, showColorPicker };
+function showSyncPrompt() {
+    const syncPrompt = document.getElementById("syncPrompt");
+    syncPrompt.style.display = "block";
+    return new Promise((resolve, reject) => {
+        document.addEventListener("click", function (event) {
+            if (event.target.id === "syncYesButton") {
+                syncPrompt.style.display = "none";
+                resolve(true);
+            }
+            else if (event.target.id === "syncNoButton") {
+                syncPrompt.style.display = "none";
+                resolve(false);
+            }
+        });
+    });
+}
+
+export { displayNotebook, displayNotes, addNoteComponent, removeNoteComponent, editNoteComponent, checkNoteComponent, changeNoteColor, removeAllNoteComponents, showNoteEditor, showColorPicker, showSyncPrompt };

@@ -1,6 +1,6 @@
-import { openDB } from "./indexeddb.js";
-import { displayNotebook, displayNotes, addNoteComponent, removeNoteComponent, editNoteComponent, checkNoteComponent, changeNoteColor, removeAllNoteComponents, showNoteEditor, showColorPicker } from "./ui.js";
-import { addNotebook, getNotes, addNote, deleteNote, noteColor, updateNoteChecked, updateNote } from "./notes.js";
+import { openDB, clearDB } from "./indexeddb.js";
+import { displayNotebook, displayNotes, addNoteComponent, removeNoteComponent, editNoteComponent, checkNoteComponent, changeNoteColor, removeAllNoteComponents, showNoteEditor, showColorPicker, showSyncPrompt } from "./ui.js";
+import { addNotebook, getNotes, addNote, deleteNote, noteColor, updateNoteChecked, updateNote, syncData } from "./notes.js";
 
 let online;
 window.onload = async function () {
@@ -8,15 +8,30 @@ window.onload = async function () {
 
     if (window.navigator.onLine) {
         online = true;
+        
     } else {
         online = false;
     }
 
-    document.addEventListener("online", function () {
+    window.addEventListener("online", async function () {
+        console.log("online")
         online = true;
+        const sync = await showSyncPrompt();
+        if (sync) {
+            syncData();
+            clearDB();
+            if (window.location.pathname.endsWith("notes.html")) {
+                const notebookId = localStorage.getItem("notebookId");
+                // add notebook to offline DB
+                const notebook = await addNotebook();  
+                window.location.href = "./notes.html";
+            }
+        }
+        
     });
 
-    document.addEventListener("offline", function () {
+    window.addEventListener("offline", function () {
+        console.log("offline")
         online = false;
     });
 
