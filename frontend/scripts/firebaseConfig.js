@@ -19,6 +19,16 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+      navigator.serviceWorker
+        .register("./firebase-messaging-sw.js")
+        .then(res => console.log("Firebase service worker registered"))
+        .catch(err => console.log("Firebase service worker not registered", err))
+    })
+}
+
 const messaging = getMessaging(app);
 
 function requestPermission() {
