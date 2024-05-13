@@ -29,6 +29,7 @@ function requestPermission() {
           new Notification('Welcome to Notewes!', {
             body: 'Start taking some notes by creating a notebook 📓',
             icon: './images/notes-logo.jpg',
+            silent: true,
         })
       } else {
           console.log('Unable to get permission to notify.');
