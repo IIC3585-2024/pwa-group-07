@@ -36,7 +36,7 @@ requestPermission();
 let firebaseServiceWorker;
 if ('serviceWorker' in navigator) {
     try {
-        firebaseServiceWorker = await navigator.serviceWorker.register('./firebase-messaging-sw.js', {scope: '/firebase-cloud-messaging-push-scope'})
+        firebaseServiceWorker = await navigator.serviceWorker.register('./firebase-messaging-sw.js', {scope: './firebase-cloud-messaging-push-scope'})
         console.log('Service worker registered.', firebaseServiceWorker);
     } catch (err) {
         console.error('Unable to register service worker.', err);
