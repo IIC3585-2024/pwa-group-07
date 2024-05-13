@@ -1,3 +1,6 @@
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { initializeApp } = require('firebase/app');
@@ -28,60 +31,20 @@ const db = getFirestore();
 // Create an Express app
 const app = express();
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    next();
+});
+
 // Use the body-parser middleware
 app.use(bodyParser.json());
 
 // Define the port
 const port = 3000;
 
-app.post('/notebooks', async (req, res) => {
-    try {
-        const { name } = req.body;
-        
-        const data = {
-            name: name,
-        };
-
-        // check if the name is empty
-        if (!data.name) {
-            return res.status(400).json({ error: 'Name is required' });
-        }
-
-        // check if notebook already exists
-        const notebooksRef = collection(db, 'notebooks');
-        const querySnapshot = await getDocs(notebooksRef);
-        const notebooks = querySnapshot.docs.map(doc => doc.data());
-
-        if (notebooks.some(notebook => notebook.name === data.name)) {
-            return res.status(400).json({ error: 'Notebook already exists' });
-        }
-
-        // create new notebook
-        const docRef = await addDoc(notebooksRef, data);
-
-        res.json({ id: docRef.id, ...data });
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to create notebook' });
-    }
-});
-
-app.delete('/:notebook_id', async (req, res) => {
-    try {
-        const { notebook_id } = req.params;
-
-        const notebookRef = doc(db, 'notebooks', notebook_id);
-
-        await deleteDoc(notebookRef);
-
-        res.json({ message: 'Notebook deleted' });
-
-    } catch (err) {
-        res.status(500).json({ error: 'Failed to delete notebook' });
-    }
-});
-
-// Define API routes for notes
-app.put('/:notebook_id/notes/:id', async (req, res) => {
+app.put('/notebooks/:notebook_id/notes/:id', async (req, res) => {
     try {
 
         const { notebook_id, id } = req.params;
@@ -105,15 +68,15 @@ app.put('/:notebook_id/notes/:id', async (req, res) => {
         const noteRef = doc(notesRef, id);
         await updateDoc(noteRef, data);
 
-        res.json({ id, ...data });
+        return res.json({ id, ...data });
         
     } catch (err) {
         console.log(err)
-        res.status(500).json({ error: 'Failed to update note' });
+        return res.status(500).json({ error: 'Failed to update note' });
     }
 });
 
-app.delete('/:notebook_id/notes/:id', async (req, res) => {
+app.delete('/notebooks/:notebook_id/notes/:id', async (req, res) => {
     try {
 
         const { notebook_id, id } = req.params;
@@ -129,10 +92,10 @@ app.delete('/:notebook_id/notes/:id', async (req, res) => {
         const noteRef = doc(notesRef, id);
         await deleteDoc(noteRef);
 
-        res.json({ message: 'Note deleted' });
+        return res.json({ message: 'Note deleted' });
 
     } catch (err) {
-        res.status(500).json({ error: 'Failed to delete note' });
+        return res.status(500).json({ error: 'Failed to delete note' });
     }
 });
 
@@ -170,8 +133,7 @@ function filterNotes(filters, notes) {
     return filteredNotes;
 }
 
-// dynamic route to fetch notes of a notebook
-app.get('/:notebook_id/notes', async (req, res) => {
+app.get('/notebooks/:notebook_id/notes', async (req, res) => {
     try {
         
         const { notebook_id } = req.params;
@@ -192,14 +154,14 @@ app.get('/:notebook_id/notes', async (req, res) => {
         // filter notes based on query parameters
         const filteredNotes = filterNotes(filters, notes);
         
-        res.json(filteredNotes);
+        return res.json(filteredNotes);
 
     } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch notes' });
+        return res.status(500).json({ error: 'Failed to fetch notes' });
     }
 });
 
-app.post('/:notebook_id/notes', async (req, res) => {
+app.post('/notebooks/:notebook_id/notes', async (req, res) => {
     try {
         const { notebook_id } = req.params;
 
@@ -233,11 +195,11 @@ app.post('/:notebook_id/notes', async (req, res) => {
             
         
     } catch (err) {
-        res.status(500).json({ error: 'Failed to create note' });
+        return res.status(500).json({ error: 'Failed to create note' });
     }
 });
 
-app.get('/:notebook_id', async (req, res) => {
+app.get('/notebooks/:notebook_id', async (req, res) => {
     try {
         const { notebook_id } = req.params;
 
@@ -249,11 +211,58 @@ app.get('/:notebook_id', async (req, res) => {
         }
 
         const notebook = docSnap.data();
-        res.json({ id: docSnap.id, ...notebook });
-        
+        return res.json({ id: docSnap.id, ...notebook });
     } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch notebook' });
         console.log(err);
+        return res.status(500).json({ error: 'Failed to fetch notebook' });
+        
+    }
+});
+
+app.delete('/notebooks/:notebook_id', async (req, res) => {
+    try {
+        const { notebook_id } = req.params;
+
+        const notebookRef = doc(db, 'notebooks', notebook_id);
+
+        await deleteDoc(notebookRef);
+
+        return res.json({ message: 'Notebook deleted' });
+
+    } catch (err) {
+        return res.status(500).json({ error: 'Failed to delete notebook' });
+    }
+});
+
+app.post('/notebooks', async (req, res) => {
+    try {
+        const { name } = req.body;
+        
+        const data = {
+            name: name,
+        };
+
+        // check if the name is empty
+        if (!data.name) {
+            return res.status(400).json({ error: 'Name is required' });
+        }
+
+        // check if notebook already exists
+        const notebooksRef = collection(db, 'notebooks');
+        const querySnapshot = await getDocs(notebooksRef);
+        
+        for (const doc of querySnapshot.docs) {
+            if (doc.data().name === data.name) {
+                return res.json({ id: doc.id, ...doc.data() });
+            }
+        }
+
+        // create new notebook
+        const docRef = await addDoc(notebooksRef, data);
+
+        return res.json({ id: docRef.id, ...data });
+    } catch (err) {
+        return res.status(500).json({ error: 'Failed to create notebook' });
     }
 });
 
@@ -261,7 +270,15 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+// Create an HTTPS server
+
+const httpsOptions = {
+    key: fs.readFileSync("server.key"),
+    cert: fs.readFileSync("server.cert")
+};
+
+const server = https.createServer(httpsOptions, app);
+
+server.listen(port, () => {
+    console.log(`Server listening at https://localhost:${port}`);
 });

@@ -2,49 +2,50 @@ import { openDB, clearDB } from "./indexeddb.js";
 import { displayNotebook, displayNotes, addNoteComponent, removeNoteComponent, editNoteComponent, checkNoteComponent, changeNoteColor, removeAllNoteComponents, showNoteEditor, showColorPicker, showSyncPrompt } from "./ui.js";
 import { addNotebook, getNotes, addNote, deleteNote, noteColor, updateNoteChecked, updateNote, syncData } from "./notes.js";
 
-let online;
 window.onload = async function () {
     await openDB();
 
-    if (window.navigator.onLine) {
-        online = true;
-        
-    } else {
-        online = false;
-    }
-
     window.addEventListener("online", async function () {
-        console.log("online")
-        online = true;
+        this.localStorage.setItem("online", true);
         const sync = await showSyncPrompt();
         if (sync) {
             syncData();
-            clearDB();
-            if (window.location.pathname.endsWith("notes.html")) {
-                const notebookId = localStorage.getItem("notebookId");
-                // add notebook to offline DB
-                const notebook = await addNotebook();  
-                window.location.href = "./notes.html";
-            }
+            return;
+        }
+        clearDB();
+        if (window.location.pathname.endsWith("notes.html")) {
+            const notebookId = localStorage.getItem("notebookId");
+            const notebookName = localStorage.getItem("notebookName");
+            // add notebook to offline DB
+            const notebook = await addNotebook(notebookName);
+            window.location.href = "./notes.html";
         }
         
     });
 
     window.addEventListener("offline", function () {
         console.log("offline")
-        online = false;
+        localStorage.setItem("online", false);
     });
+
+    if (window.navigator.onLine) {
+        localStorage.setItem("online", true);
+        
+    } else {
+        localStorage.setItem("online", false);
+    }
 
     document.addEventListener("click",async function (event) {
         switch (event.target.id) {
             case "addNotebookButton":
-                const notebook = await addNotebook();
+                let name = document.getElementById("notebookInput").value;
+                const notebook = await addNotebook(name);
+                document.getElementById("notebookInput").value = "";
                 displayNotebook(notebook);
                 break;
             case "addNoteButton":
                 const notebookId = localStorage.getItem("notebookId");
                 const newNote = await addNote(notebookId);
-                console.log(newNote)
                 document.getElementById("noteInput").value = "";
                 addNoteComponent(newNote);
                 break;
@@ -91,21 +92,23 @@ window.onload = async function () {
                 break;
         }
     });
-
+    
     if (document.readyState === "complete" || document.readyState === "interactive") {
-        if (window.location.pathname === "./notes.html") {
+        
+        if (window.location.pathname.endsWith("notes.html")) {
             const notebookId = localStorage.getItem("notebookId");
             const notes = await getNotes(notebookId);
             displayNotes(notes);
         }
     } else {
-        document.addEventListener("load", async function () {
-            if (window.location.pathname === "./notes.html") {
+        document.addEventListener("DOMContentLoaded", async function () {
+            if (window.location.pathname.endsWith("notes.html")) {
                 const notebookId = localStorage.getItem("notebookId");
                 const notes = await getNotes(notebookId);
                 displayNotes(notes);
             }
-        });
+        }
+        );
     }
 }
 
