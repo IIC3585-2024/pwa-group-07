@@ -1,6 +1,6 @@
 import { addNotebookDB, addNoteDB, deleteNoteDB, updateNoteDB, getNotebookDB, getNoteDB, getNotebookNotesDB, getNotebooksDB, getNotefromRemoteIdDB, updateNotebookDB, getNotesDB } from "./indexeddb.js";
 
-let API_URL = "https://3.224.100.171";
+let API_URL = "https://3.224.100.171:3000";
 
 async function addNotebook(name) {
 
