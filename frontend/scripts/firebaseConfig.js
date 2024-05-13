@@ -26,8 +26,8 @@ function requestPermission() {
   Notification.requestPermission().then((permission) => {
       if (permission === 'granted') {
           console.log('Notification permission granted.');
-          new Notification('Welcome to Notewes!', {
-            body: 'Start taking some notes by creating a notebook 📓',
+          new Notification('Bienvenid@ a Notewes!', {
+            body: 'Comienza a tomar notas creando un Notebook! 📓',
             icon: './images/notes-logo.jpg',
             silent: true,
         })
