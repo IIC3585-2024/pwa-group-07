@@ -1,7 +1,5 @@
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
 const express = require('express');
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const { initializeApp } = require('firebase/app');
 const { getFirestore, doc, getDoc, getDocs, updateDoc, deleteDoc, collection, addDoc, serverTimestamp } = require('firebase/firestore');
@@ -31,12 +29,8 @@ const db = getFirestore();
 // Create an Express app
 const app = express();
 
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
+// Use the cors middleware
+app.use(cors());
 
 // Use the body-parser middleware
 app.use(bodyParser.json());
@@ -270,15 +264,7 @@ app.get('/', (req, res) => {
     res.send('Hello World!');
 });
 
-// Create an HTTPS server
-
-const httpsOptions = {
-    key: fs.readFileSync("server.key"),
-    cert: fs.readFileSync("server.cert")
-};
-
-const server = https.createServer(httpsOptions, app);
-
-server.listen(port, () => {
-    console.log(`Server listening at https://localhost:${port}`);
+// Create an HTTP server
+app.listen(port, () => {
+    console.log(`Server listening at http://localhost:${port}`);
 });
