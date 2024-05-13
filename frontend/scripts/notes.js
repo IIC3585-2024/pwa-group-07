@@ -1,17 +1,17 @@
-import { addNotebookDB, addNoteDB, deleteNoteDB, updateNoteDB, deleteNotebookDB, getNotebookDB, getNoteDB, getNotebookNotesDB, getNotebooksDB } from "./indexeddb.js";
+import { addNotebookDB, addNoteDB, deleteNoteDB, updateNoteDB, getNotebookDB, getNoteDB, getNotebookNotesDB, getNotebooksDB, getNotefromRemoteIdDB, updateNotebookDB, getNotesDB } from "./indexeddb.js";
 
-async function addNotebook() {
-    let name = document.getElementById("notebookInput").value;
-    document.getElementById("notebookInput").value = "";
+let API_URL = "https://localhost:3000";
+
+async function addNotebook(name) {
 
     if (name.trim() === "") {
         alert("Please enter a notebook name");
         return null;
     }
 
-    if (online) {
+    if (localStorage.getItem("online") === "true") {
         // add notebook to online DB
-        const response = await fetch(`${""}/notebooks`, {
+        const response = await fetch(`${API_URL}/notebooks`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -27,6 +27,8 @@ async function addNotebook() {
 
         const data = await response.json();
 
+        localStorage.setItem("data",data);
+        
         const notebook = {
             name: name,
             id_remote: data.id,
@@ -66,10 +68,10 @@ async function addNotebook() {
 
 async function getNotes(notebook_id){
 
-    if (online) {
+    if (localStorage.getItem("online") ==="true") {
 
-        // get notebook from online DB
-        const notebook = await getNotebookDB(notebook_id);
+        // get notebook from indexedDB
+        const notebook = await getNotebookDB(parseInt(notebook_id));
 
         if (!notebook) {
             alert("Notebook not found");
@@ -79,7 +81,7 @@ async function getNotes(notebook_id){
         // get online id of notebook
         const online_id = notebook.id_remote;
 
-        const response = await fetch(`${""}/notebooks/${online_id}/notes`);
+        const response = await fetch(`${API_URL}/notebooks/${online_id}/notes`);
         if (!response.ok) {
             const data = await response.json();
             alert(data.error);
@@ -88,22 +90,25 @@ async function getNotes(notebook_id){
 
         const data = await response.json();
 
-        // update notes in indexedDB
-        const notes = data.notes;
+
+        if (data.length === 0) {
+            return [];
+        }
+        const notes = data;
         for (let note of notes) {
-            const noteDB = await getNoteDB(note.id);
+            const noteDB = await getNotefromRemoteIdDB(note.id);
             if (!noteDB) {
-                newNote = {
+                const newNote = {
                     content: note.content,
                     checked: note.checked,
                     color: note.color,
                     id_remote: note.id,
-                    notebook_id: notebook_id,
+                    notebook_id: parseInt(notebook_id),
                     synced: true,
                     deleted: false,
                     updated: false,
                 };
-                addNoteDB(newNote);
+                await addNoteDB(newNote);
             } else {
                 if (
                     noteDB.content !== note.content ||
@@ -113,23 +118,35 @@ async function getNotes(notebook_id){
                     noteDB.content = note.content;
                     noteDB.checked = note.checked;
                     noteDB.color = note.color;
-                    updateNoteDB(noteDB);
+                    await updateNoteDB(noteDB);
                 }
             }
         }
+        const notesDB = await getNotebookNotesDB(parseInt(notebook_id));
+        // check if notes are deleted
+        for (let note of notesDB) {
+            const noteRemote = notes.find((n) => n.id === note.id_remote);
+            if (!noteRemote) {
+                await deleteNoteDB(note.id);
+            }
+        }
+        
+        return notesDB;
     }
 
-    const notes = getNotebookNotesDB(notebook_id);
-    return notes;
+    const notesDB = await getNotebookNotesDB(parseInt(notebook_id));
+
+    return notesDB;
 }
 
 async function addNote(notebook_id) {
     let content = document.getElementById("noteInput").value;
+    document.getElementById("noteInput").value = "";
 
-    if (online) {
+    if (localStorage.getItem("online") === "true") {
 
         // get notebook from indexedDB
-        const notebook = await getNotebookDB(notebook_id);
+        const notebook = await getNotebookDB(parseInt(notebook_id));
 
         if (!notebook) {
             alert("Notebook not found");
@@ -140,7 +157,7 @@ async function addNote(notebook_id) {
         const online_id = notebook.id_remote;
 
         // add note to online DB
-        const response = await fetch(`${""}/notebooks/${online_id}/notes`, {
+        const response = await fetch(`${API_URL}/notebooks/${online_id}/notes`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -159,20 +176,18 @@ async function addNote(notebook_id) {
         const newNote = {
             content: content,
             checked: false,
-            color: "white",
+            color: "blue",
             id_remote: data.id,
-            notebook_id: notebook_id,
+            notebook_id: parseInt(notebook_id),
             synced: true,
             deleted: false,
             updated: false,
         };
         
         // add note to indexedDB
-        addNoteDB(newNote);
-
-        document.getElementById("noteInput").value = "";
-        addNoteComponent(newNote);
-        return;
+        const id = await addNoteDB(newNote);
+        newNote.id = id;
+        return newNote;
     }
 
     const newNote = {
@@ -180,7 +195,7 @@ async function addNote(notebook_id) {
         checked: false,
         color: "blue",
         id_remote: "offline",
-        notebook_id: notebook_id,
+        notebook_id: parseInt(notebook_id),
         synced: false,
         deleted: false,
         updated: false,
@@ -193,13 +208,17 @@ async function addNote(notebook_id) {
 
 async function deleteNote(noteId) {
     
-    if (online) {
+    if (localStorage.getItem("online") === "true") {
         const noteDB = await getNoteDB(noteId);
         const notebook_id = localStorage.getItem("notebookId");
-        const notebook = await getNotebookDB(notebook_id);
+        // print type of notebook_id
+        const intNotebook_id = parseInt(notebook_id);
+
+        // get notebook from indexedDB
+        const notebook = await getNotebookDB(intNotebook_id);
         const online_id = notebook.id_remote;
         
-        const response = await fetch(`${""}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
+        const response = await fetch(`${API_URL}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
             method: "DELETE",
         });
 
@@ -222,11 +241,13 @@ async function deleteNote(noteId) {
 
 async function noteColor(noteId, color) {  
     
-    if (online) {
+    if (localStorage.getItem("online") === "true") {
 
         const noteDB = await getNoteDB(noteId);
         const notebook_id = localStorage.getItem("notebookId");
-        const notebook = await getNotebookDB(notebook_id);
+
+        // get notebook from indexedDB
+        const notebook = await getNotebookDB(parseInt(notebook_id));
         const online_id = notebook.id_remote;
 
         const updatedNote = {
@@ -235,7 +256,7 @@ async function noteColor(noteId, color) {
             color: color,
         };
 
-        const response = await fetch(`${""}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
+        const response = await fetch(`${API_URL}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -271,11 +292,13 @@ async function noteColor(noteId, color) {
 
 async function updateNoteChecked(noteId) {
     
-    if (online) {
+    if (localStorage.getItem("online") === "true") {
 
         const noteDB = await getNoteDB(noteId);
         const notebook_id = localStorage.getItem("notebookId");
-        const notebook = await getNotebookDB(notebook_id);
+
+        // get notebook from indexedDB
+        const notebook = await getNotebookDB(parseInt(notebook_id));
         const online_id = notebook.id_remote;
 
         const updatedNote = {
@@ -284,7 +307,7 @@ async function updateNoteChecked(noteId) {
             color: noteDB.color,
         };
 
-        const response = await fetch(`${""}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
+        const response = await fetch(`${API_URL}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -316,11 +339,12 @@ async function updateNoteChecked(noteId) {
 
 async function updateNote(noteId,content) {
     
-    if (online) {
+    if (localStorage.getItem("online") === "true") {
 
         const noteDB = await getNoteDB(noteId);
         const notebook_id = localStorage.getItem("notebookId");
-        const notebook = await getNotebookDB(notebook_id);
+        // get notebook from indexedDB
+        const notebook = await getNotebookDB(parseInt(notebook_id));
         const online_id = notebook.id_remote;
 
         const updatedNote = {
@@ -329,7 +353,7 @@ async function updateNote(noteId,content) {
             color: noteDB.color,
         };
 
-        const response = await fetch(`${""}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
+        const response = await fetch(`${API_URL}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -348,7 +372,8 @@ async function updateNote(noteId,content) {
         noteDB.synced = true;
         noteDB.updated = false;
         updateNoteDB(noteDB);
-        return data.content;
+
+        return noteDB;
     }
     const noteDB = await getNoteDB(noteId);
     noteDB.content = content;
@@ -359,7 +384,7 @@ async function updateNote(noteId,content) {
 }
 
 async function updateNotebookId(notebook) {
-    const response = await fetch("/notebooks", {
+    const response = await fetch(`${API_URL}/notebooks`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -382,7 +407,7 @@ async function updateNotebookId(notebook) {
 }
 
 async function updateNoteId(notebook,note) {
-    const response = await fetch(`/notebooks/${notebook.id_remote}/notes`, {
+    const response = await fetch(`${API_URL}/notebooks/${notebook.id_remote}/notes`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -397,6 +422,7 @@ async function updateNoteId(notebook,note) {
     }
 
     const data = await response.json();
+    
     note.id_remote = data.id;
     note.synced = true;
     note.updated = false;
@@ -405,7 +431,7 @@ async function updateNoteId(notebook,note) {
 }
 
 async function syncNoteUpdate(notebook,note) {
-    const response = await fetch(`/notebooks/${notebook.id_remote}/notes/${note.id_remote}`, {
+    const response = await fetch(`${API_URL}/notebooks/${notebook.id_remote}/notes/${note.id_remote}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -427,7 +453,12 @@ async function syncNoteUpdate(notebook,note) {
 }
 
 async function syncNoteDelete(notebook,note) {
-    const response = await fetch(`/notebooks/${notebook.id_remote}/notes/${note.id_remote}`, {
+
+    if (note.id_remote === "offline") {
+        await deleteNoteDB(parseInt(note.id));
+        return;
+    }
+    const response = await fetch(`${API_URL}/notebooks/${notebook.id_remote}/notes/${note.id_remote}`, {
         method: "DELETE",
     });
 
@@ -437,30 +468,30 @@ async function syncNoteDelete(notebook,note) {
         return;
     }
 
-    await deleteNoteDB(note.id);
+    await deleteNoteDB(parseInt(note.id));
 }
 
 
 async function syncData() {
-    if (online) {
+    if (localStorage.getItem("online") === "true") {
         const notebooks = await getNotebooksDB();
         for (let notebook of notebooks) {
             if (!notebook.synced) {
                 if (notebook.id_remote === "offline") {
                     notebook = await updateNotebookId(notebook);
                 }
-                const notes = await getNotebookNotesDB(notebook.id);
-                for (let note of notes) {
-                    if (!note.synced) {
-                        if (note.id_remote === "offline") {
-                            note = await updateNoteId(notebook,note);
-                        } 
-                        if (note.updated) {
-                            note = await syncNoteUpdate(notebook,note);
-                        }
-                        if (note.deleted) {
-                            await syncNoteDelete(notebook,note);
-                        }
+            }
+            const notes = await getNotesDB(notebook.id);
+            for (let note of notes) {
+                if (!note.synced) {
+                    if (note.id_remote === "offline") {
+                        note = await updateNoteId(notebook,note);
+                    } 
+                    if (note.updated) {
+                        note = await syncNoteUpdate(notebook,note);
+                    }
+                    if (note.deleted) {
+                        await syncNoteDelete(notebook,note);
                     }
                 }
             }

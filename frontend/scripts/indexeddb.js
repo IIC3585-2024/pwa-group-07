@@ -56,6 +56,8 @@ function addNotebookDB(notebook) {
     return new Promise((resolve, reject) => {
 
         const db = getDB();
+
+        localStorage.setItem("print",notebook.name)
         
         // if notebook already in online DB
         const transaction = db
@@ -68,18 +70,12 @@ function addNotebookDB(notebook) {
             if (transaction.result) {
                 resolve(transaction.result.id);
             } else {
-                
-                if (notebook.online_id === undefined) {
-                    notebook.id_remote = "offline"
-                }
-            
                 const transaction = db
                     .transaction(["notebooks"], "readwrite")
                     .objectStore("notebooks")
                     .add(notebook);
             
                 transaction.onsuccess = function () {
-                    console.log("Notebook added");
                     resolve(transaction.result);
                 }
             
@@ -115,6 +111,28 @@ function addNoteDB(note) {
     });
 }
 
+function getNotesDB(notebook_id) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+
+        const transaction = db
+            .transaction(["notes"], "readonly")
+            .objectStore("notes")
+            .index("notebook_id")
+            .getAll(notebook_id);
+
+        transaction.onsuccess = function () {
+            resolve(transaction.result);
+        }
+
+        transaction.onerror = function () {
+            console.error("Failed to get notes");
+        }
+    }
+
+    );
+}
+
 async function getNotebookNotesDB(notebook_id) {
     return new Promise((resolve, reject) => {
         const db = getDB();
@@ -123,21 +141,13 @@ async function getNotebookNotesDB(notebook_id) {
             .transaction(["notes"], "readonly")
             .objectStore("notes")
             .index("notebook_id")
-            .openCursor(notebook_id)
-        
-
-        const notes = [];
+            .getAll(notebook_id);
+    
         // iterate over cursor
-        transaction.onsuccess = function (e) {
-            const cursor = e.target.result;
-            if (cursor) {
-                if (cursor.value.deleted === false) {
-                    notes.push(cursor.value);
-                }
-                cursor.continue();
-            } else {
-                resolve(notes);
-            }        
+        transaction.onsuccess = function () {
+            // filter notes to when deleted is false
+            const notes = transaction.result.filter(note => !note.deleted);
+            resolve(notes);
         }
 
         transaction.onerror = function () {
@@ -163,7 +173,6 @@ function updateNoteDB(note) {
                     .put(note);
             
                 transaction.onsuccess = function () {
-                    console.log("Note updated");
                     resolve(transaction.result);
                 }
             
@@ -189,11 +198,10 @@ function deleteNoteDB(note_id) {
     const transaction = db
         .transaction(["notes"], "readwrite")
         .objectStore("notes")
-        .index("id")
         .delete(note_id);
 
     transaction.onsuccess = function () {
-        console.log("Note deleted");
+        return;
     }
 
     transaction.onerror = function () {
@@ -208,11 +216,10 @@ function deleteNotebookDB(notebook_id) {
     const transaction = db
         .transaction(["notebooks"], "readwrite")
         .objectStore("notebooks")
-        .index("id")
         .delete(notebook_id);
 
     transaction.onsuccess = function () {
-        console.log("Notebook deleted");
+        return;
     }
 
     transaction.onerror = function () {
@@ -223,11 +230,10 @@ function deleteNotebookDB(notebook_id) {
     const transaction_notes = db
         .transaction(["notes"], "readwrite")
         .objectStore("notes")
-        .index("notebook_id")
         .delete(notebook_id);
     
     transaction_notes.onsuccess = function () {
-        console.log("Notes deleted");
+        return;
     }
 
     transaction_notes.onerror = function () {
@@ -235,15 +241,15 @@ function deleteNotebookDB(notebook_id) {
     }
 }
 
-function getNotebookDB(notebook_id) {
+function getNotebookDB(id) {
     return new Promise((resolve, reject) => {
+        
         const db = getDB();
 
         const transaction = db
             .transaction(["notebooks"], "readonly")
             .objectStore("notebooks")
-            .index("id")
-            .get(notebook_id);
+            .get(id);
 
         transaction.onsuccess = function () {
             resolve(transaction.result);
@@ -252,6 +258,7 @@ function getNotebookDB(notebook_id) {
         transaction.onerror = function () {
             console.error("Failed to get notebook");
         }
+
     });
 }
 
@@ -264,6 +271,26 @@ function getNoteDB(note_id) {
             .transaction(["notes"], "readonly")
             .objectStore("notes")
             .get(note_id);
+
+        transaction.onsuccess = function () {
+            resolve(transaction.result);
+        }
+
+        transaction.onerror = function () {
+            console.error("Failed to get note");
+        }
+    });
+}
+
+function getNotefromRemoteIdDB(note_id_remote) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
+
+        const transaction = db
+            .transaction(["notes"], "readonly")
+            .objectStore("notes")
+            .index("id_remote")
+            .get(note_id_remote);
 
         transaction.onsuccess = function () {
             resolve(transaction.result);
@@ -294,5 +321,54 @@ function getNotebooksDB() {
     });
 }
 
+function updateNotebookDB(notebook) {
+    return new Promise((resolve, reject) => {
+        const db = getDB();
 
-export { openDB, addNotebookDB, addNoteDB, getNotebookNotesDB, updateNoteDB, deleteNoteDB, deleteNotebookDB, getNotebookDB, getNoteDB, getNotebooksDB, clearDB };
+        const transaction = db
+            .transaction(["notebooks"], "readwrite")
+            .objectStore("notebooks")
+            .get(notebook.id);
+
+        transaction.onsuccess = function () {
+            if (transaction.result) {
+                const transaction = db
+                    .transaction(["notebooks"], "readwrite")
+                    .objectStore("notebooks")
+                    .put(notebook);
+            
+                transaction.onsuccess = function () {
+                    resolve(transaction.result);
+                }
+            
+                transaction.onerror = function () {
+                    console.error("Failed to update notebook");
+                }
+            } else {
+                console.error("Notebook not found");
+            }
+        }
+
+        transaction.onerror = function () {
+            console.error("Failed to get notebook");
+        }
+    });
+}
+
+export {
+    openDB,
+    getDB,
+    clearDB,
+    addNotebookDB,
+    addNoteDB,
+    getNotesDB,
+    getNotebookNotesDB,
+    updateNoteDB,
+    deleteNoteDB,
+    deleteNotebookDB,
+    getNotebookDB,
+    getNoteDB,
+    getNotefromRemoteIdDB,
+    getNotebooksDB,
+    updateNotebookDB
+};
