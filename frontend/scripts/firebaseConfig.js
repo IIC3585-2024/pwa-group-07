@@ -26,6 +26,10 @@ function requestPermission() {
   Notification.requestPermission().then((permission) => {
       if (permission === 'granted') {
           console.log('Notification permission granted.');
+          new Notification('Welcome to Notewes!', {
+            body: 'Start taking some notes by creating a notebook 📓',
+            icon: './images/notes-logo.jpg',
+        })
       } else {
           console.log('Unable to get permission to notify.');
       }
@@ -65,6 +69,8 @@ onMessage(messaging, (payload) => {
     console.log('Message received. ', payload);
     const notificationBody = payload.notification.body;
 
-    // TODO: replace this with a toast in the UI
-    alert(notificationBody)
+    new Notification(payload.notification.title, {
+        body: notificationBody,
+        icon: './images/notes-logo.jpg',
+    });
 });
