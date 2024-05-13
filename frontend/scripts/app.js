@@ -49,7 +49,7 @@ window.onload = async function () {
                 addNoteComponent(newNote);
                 break;
             case "homeButton":
-                window.location.href = "../index.html";
+                window.location.href = "./index.html";
                 break;
             case "sortButton":
                 //sortNotes();
