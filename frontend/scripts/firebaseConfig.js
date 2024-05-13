@@ -59,8 +59,6 @@ if ('serviceWorker' in navigator) {
         });
 }
 
-
-
 onMessage(messaging, (payload) => {
     console.log('Message received. ', payload);
     const notificationBody = payload.notification.body;
