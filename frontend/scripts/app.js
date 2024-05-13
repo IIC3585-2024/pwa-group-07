@@ -19,7 +19,7 @@ window.onload = async function () {
             // add notebook to offline DB
             const notebook = await addNotebook(notebookName);
         }
-        window.location.href = "./notes.html";
+        window.location.href = "./index.html";
     });
 
     window.addEventListener("offline", function () {
