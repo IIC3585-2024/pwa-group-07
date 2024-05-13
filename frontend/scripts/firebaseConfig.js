@@ -36,14 +36,14 @@ requestPermission();
 let firebaseServiceWorker;
 if ('serviceWorker' in navigator) {
     try {
-        firebaseServiceWorker = await navigator.serviceWorker.register('./firebase-messaging-sw.js')
+        firebaseServiceWorker = await navigator.serviceWorker.register('./firebase-messaging-sw.js', {scope: '/firebase-cloud-messaging-push-scope'})
         console.log('Service worker registered.', firebaseServiceWorker);
     } catch (err) {
         console.error('Unable to register service worker.', err);
     }
 }
 getToken(messaging, {
-    serviceWorkerRegistration: firebaseServiceWorker,
+    // serviceWorkerRegistration: firebaseServiceWorker,
     vapidKey: 
         "BO4ruaq8L9n0N2HksdkvZ9jSO9OGFOUl6xQeVsrCpez8Ud_ZLyy-WMUWnU5GAVKSicwXOqkCafZkLP_gmPBT4b8"
 })
