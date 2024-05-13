@@ -14,11 +14,9 @@ function openDB() {
     request.onupgradeneeded = function (e) {
         const db = e.target.result;
         const notebooks = db.createObjectStore("notebooks", { keyPath: "id", autoIncrement: true });
-        notebooks.createIndex("id", "id", { unique: true });
         notebooks.createIndex("id_remote", "id_remote", { unique: false });
         notebooks.createIndex("name", "name", { unique: true });
         const notes = db.createObjectStore("notes", { keyPath: "id", autoIncrement: true });
-        notes.createIndex("id", "id", { unique: true });
         notes.createIndex("id_remote", "id_remote", { unique: false });
         notes.createIndex("notebook_id", "notebook_id", { unique: false });
     };
