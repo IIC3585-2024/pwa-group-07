@@ -1,4 +1,4 @@
-import { addNotebookDB, addNoteDB, deleteNoteDB, updateNoteDB, deleteNotebookDB, getNotebookDB, getNoteDB, getNotebookNotesDB } from "./indexeddb.js";
+import { addNotebookDB, addNoteDB, deleteNoteDB, updateNoteDB, deleteNotebookDB, getNotebookDB, getNoteDB, getNotebookNotesDB, getNotebooksDB } from "./indexeddb.js";
 
 async function addNotebook() {
     let name = document.getElementById("notebookInput").value;
@@ -350,4 +350,114 @@ async function updateNote(noteId,content) {
     return noteDB;
 }
 
-export { addNotebook, getNotes, addNote, deleteNote, noteColor, updateNoteChecked, updateNote };
+async function updateNotebookId(notebook) {
+    const response = await fetch("/notebooks", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: notebook.name }),
+    });
+
+    if (!response.ok) {
+        const data = await response.json();
+        alert(data.error);
+        return notebook;
+    }
+
+    const data = await response.json();
+    notebook.id_remote = data.id;
+    notebook.synced = true;
+    await updateNotebookDB(notebook);
+
+    return notebook;
+}
+
+async function updateNoteId(notebook,note) {
+    const response = await fetch(`/notebooks/${notebook.id_remote}/notes`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: note.content, checked: note.checked, color: note.color }),
+    });
+
+    if (!response.ok) {
+        const data = await response.json();
+        alert(data.error);
+        return note;
+    }
+
+    const data = await response.json();
+    note.id_remote = data.id;
+    note.synced = true;
+    note.updated = false;
+    await updateNoteDB(note);
+    return note;
+}
+
+async function syncNoteUpdate(notebook,note) {
+    const response = await fetch(`/notebooks/${notebook.id_remote}/notes/${note.id_remote}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: note.content, checked: note.checked, color: note.color }),
+    });
+
+    if (!response.ok) {
+        const data = await response.json();
+        alert(data.error);
+        return note;
+    }
+
+    const data = await response.json();
+    note.synced = true;
+    note.updated = false;
+    await updateNoteDB(note);
+    return note;
+}
+
+async function syncNoteDelete(notebook,note) {
+    const response = await fetch(`/notebooks/${notebook.id_remote}/notes/${note.id_remote}`, {
+        method: "DELETE",
+    });
+
+    if (!response.ok) {
+        const data = await response.json();
+        alert(data.error);
+        return;
+    }
+
+    await deleteNoteDB(note.id);
+}
+
+
+async function syncData() {
+    if (online) {
+        const notebooks = await getNotebooksDB();
+        for (let notebook of notebooks) {
+            if (!notebook.synced) {
+                if (notebook.id_remote === "offline") {
+                    notebook = await updateNotebookId(notebook);
+                }
+                const notes = await getNotebookNotesDB(notebook.id);
+                for (let note of notes) {
+                    if (!note.synced) {
+                        if (note.id_remote === "offline") {
+                            note = await updateNoteId(notebook,note);
+                        } 
+                        if (note.updated) {
+                            note = await syncNoteUpdate(notebook,note);
+                        }
+                        if (note.deleted) {
+                            await syncNoteDelete(notebook,note);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+export { addNotebook, getNotes, addNote, deleteNote, noteColor, updateNoteChecked, updateNote, syncData };
