@@ -43,7 +43,7 @@ if ('serviceWorker' in navigator) {
     }
 }
 getToken(messaging, {
-    // serviceWorkerRegistration: firebaseServiceWorker,
+    serviceWorkerRegistration: firebaseServiceWorker,
     vapidKey: 
         "BO4ruaq8L9n0N2HksdkvZ9jSO9OGFOUl6xQeVsrCpez8Ud_ZLyy-WMUWnU5GAVKSicwXOqkCafZkLP_gmPBT4b8"
 })
