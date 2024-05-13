@@ -31,8 +31,24 @@ function displayNotebook(notebook) {
 
 async function displayNotes(notes) {
     for (let note of notes) {
-        
         addNoteComponent(note);
+    }
+    // if all notes are checked, check the checkAll buttons
+    let allChecked = true;
+    for (let note of notes) {
+        if (!note.checked) {
+            allChecked = false;
+            break;
+        }
+    }
+
+    if (allChecked) {
+        document.getElementById("checkAll").dataset.checked = "true";
+        document.getElementById("checkAll").textContent = "☑";
+    }
+    else {
+        document.getElementById("checkAll").dataset.checked = "false";
+        document.getElementById("checkAll").textContent = "☐";
     }
 }
 

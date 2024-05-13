@@ -1,6 +1,6 @@
 import { openDB, clearDB } from "./indexeddb.js";
-import { displayNotebook, displayNotes, addNoteComponent, removeNoteComponent, editNoteComponent, checkNoteComponent, changeNoteColor, removeAllNoteComponents, showNoteEditor, showColorPicker, showSyncPrompt } from "./ui.js";
-import { addNotebook, getNotes, addNote, deleteNote, noteColor, updateNoteChecked, updateNote, syncData } from "./notes.js";
+import { displayNotebook, displayNotes, addNoteComponent, removeNoteComponent, editNoteComponent, checkNoteComponent, changeNoteColor, showNoteEditor, showColorPicker, showSyncPrompt } from "./ui.js";
+import { addNotebook, getNotes, addNote, deleteNote, colorNote, updateNoteChecked, updateNotesChecked, updateNote, syncData } from "./notes.js";
 
 window.onload = async function () {
     await openDB();
@@ -18,9 +18,8 @@ window.onload = async function () {
             const notebookName = localStorage.getItem("notebookName");
             // add notebook to offline DB
             const notebook = await addNotebook(notebookName);
-            window.location.href = "./notes.html";
         }
-        
+        window.location.href = "./notes.html";
     });
 
     window.addEventListener("offline", function () {
@@ -55,6 +54,30 @@ window.onload = async function () {
             case "sortButton":
                 //sortNotes();
                 break;
+            case "changeAllColors":
+                const color = await showColorPicker();
+                if (!color) {
+                    return;
+                }
+                const colorNotes = await getNotes(parseInt(localStorage.getItem("notebookId")));
+                for (const note of colorNotes) {
+                    colorNote(note.id, color).then( _ => {
+                        changeNoteColor(note.id, color);
+                    });
+                }
+                break;
+            case "checkAll":
+                const checkNotes = await getNotes(parseInt(localStorage.getItem("notebookId")));
+                const check = event.target.dataset.checked === "true" ? false : true;
+                event.target.dataset.checked = check;
+                event.target.textContent = check ? "☑" : "☐";
+                console.log(check)
+                for (const note of checkNotes) {
+                    updateNotesChecked(note.id,check).then(check => {
+                        checkNoteComponent(note.id, check);
+                    });
+                }
+                break;
             default:
                 if (event.target.id.startsWith("style-")) {
                     
@@ -63,7 +86,7 @@ window.onload = async function () {
                     if (!color) {
                         return;
                     }
-                    noteColor(noteId, color).then( _ => {
+                    colorNote(noteId, color).then( _ => {
                         changeNoteColor(noteId, color);
                     });
                 }

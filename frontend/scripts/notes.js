@@ -239,7 +239,7 @@ async function deleteNote(noteId) {
     await updateNoteDB(noteDB);
 }
 
-async function noteColor(noteId, color) {  
+async function colorNote(noteId, color) {  
     
     if (localStorage.getItem("online") === "true") {
 
@@ -336,6 +336,52 @@ async function updateNoteChecked(noteId) {
     updateNoteDB(noteDB);
     return noteDB.checked;
 }
+
+async function updateNotesChecked(noteId,check) {
+        if (localStorage.getItem("online") === "true") {
+    
+            const noteDB = await getNoteDB(noteId);
+            const notebook_id = localStorage.getItem("notebookId");
+    
+            // get notebook from indexedDB
+            const notebook = await getNotebookDB(parseInt(notebook_id));
+            const online_id = notebook.id_remote;
+    
+            const updatedNote = {
+                content: noteDB.content,
+                checked: check,
+                color: noteDB.color,
+            };
+    
+            const response = await fetch(`${API_URL}/notebooks/${online_id}/notes/${noteDB.id_remote}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(updatedNote),
+            });
+    
+            if (!response.ok) {
+                const data = await response.json();
+                alert(data.error);
+                return;
+            }
+    
+            const data = await response.json();
+            noteDB.checked = data.checked;
+            noteDB.synced = true;
+            noteDB.updated = false;
+            updateNoteDB(noteDB);
+            return data.checked;
+        }
+    
+        const noteDB = await getNoteDB(noteId);
+        noteDB.checked = check;
+        noteDB.synced = false;
+        noteDB.updated = true;
+        updateNoteDB(noteDB);
+        return noteDB.checked;
+    }
 
 async function updateNote(noteId,content) {
     
@@ -499,4 +545,4 @@ async function syncData() {
     }
 }
 
-export { addNotebook, getNotes, addNote, deleteNote, noteColor, updateNoteChecked, updateNote, syncData };
+export { addNotebook, getNotes, addNote, deleteNote, colorNote, updateNoteChecked, updateNotesChecked, updateNote, syncData };
